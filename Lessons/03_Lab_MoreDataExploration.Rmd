@@ -53,9 +53,9 @@ matrix3 <- matrix(1:20, nrow = 5, ncol = 4, byrow = TRUE, # return after comma c
 
 matrix1[4, ] #
 matrix1[ , 3] #
-matrix1[c(12, 14)] #
-matrix1[c(12:14)] #
-matrix1[2:4, 1:3] #
+matrix1[c(12, 14)] # 
+matrix1[c(12:14)] #slice: range of values 
+matrix1[2:4, 1:3] # 
 
 cells <- c(1, 26, 24, 68)
 rnames <- c("R1", "R2")
@@ -94,25 +94,35 @@ Question: In the R chunk below, write "dataframe1\$". Press `tab` after you type
 Find a ten-day forecast of temperatures (Fahrenheit) for Durham, North Carolina. Create two vectors, one representing the high temperature on each of the ten days and one representing the low.
 
 ```{r DataExercise-1a}
+vector1 <- c(93,73,78,85,82,78,75,73,71,76)
+vector2 <-c(53,48,59,61,54,51,51,52,55,55) 
 
 ```
 
 Now, create two additional vectors that include the ten-day forecast for the high and low temperatures in Celsius. Use a function to create the two new vectors from your existing ones in Fahrenheit.
 
 ```{r DataExercise-1b}
+vector3 <- (vector1-32)*(5/9)
+vector4 <- (vector2-32)*(5/9)
+c_high <- round(vector3,digit=0)
+c_low <- round(vector4,digit=0)
 
 ```
 
 Combine your four vectors into a data frame and add informative column names.
 
 ```{r DataExercise-1c}
-
+tendayforecast <- data.frame(vector1,vector2,c_high,c_low) #
+names(tendayforecast) <- c("F_high","F_low","C_high", "C_low"); View(tendayforecast)
 ```
 
 Use the common functions `summary` and `sd` to obtain basic data summaries of the ten-day forecast. How would you call these functions differently for the entire data frame vs. a single column? Attempt to demonstrate both options below.
 
 ```{r DataExercise-1d}
-
+summary(tendayforecast)
+sd(vector1)
+sd(tendayforecast$"F_high")
+summary(tendayforecast$"F_low")
 ```
 
 ### Date objects
@@ -141,7 +151,7 @@ Install and load the package lubridate into your R session. Lubridate offers fas
 More info on lubridate [here][<https://cran.r-project.org/web/packages/lubridate/lubridate.pdf>].
 
 ```{r DateExercise1}
-#install.packages("lubridate")
+install.packages("lubridate")
 library(lubridate)
 
 #Ex1
@@ -159,7 +169,7 @@ date_obj_today
 #Ex_3 - on your own...
 str_juneteenth <- "19 June 1865"
 #Since the format is month-day-year we will use function mdy()
-#date_juneteenth <- ()
+date_juneteenth <- dmy(str_juneteenth)
 #date_juneteenth
 ```
 

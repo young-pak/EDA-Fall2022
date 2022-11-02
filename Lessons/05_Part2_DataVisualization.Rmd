@@ -4,7 +4,7 @@ author: "Environmental Data Analytics | John Fay and Luana Lima | Developed by K
 date: "Fall 2022"
 output: pdf_document
 geometry: margin=2.54cm
-editor_options: 
+editor_options: S
   chunk_output_type: console
 ---
 

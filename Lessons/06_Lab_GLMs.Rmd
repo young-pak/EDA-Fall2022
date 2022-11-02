@@ -17,6 +17,7 @@ editor_options:
 ## Set up
 ```{r, message = FALSE}
 library(tidyverse)
+#install.packages("agricolae")
 library(agricolae)   
 
 EPAair <- read.csv("./Data/Processed/EPAair_O3_PM25_NC1819_Processed.csv", stringsAsFactors = TRUE)
@@ -46,6 +47,20 @@ Create three plots, each with appropriately formatted axes and legends. Choose a
 
 ```{r}
 #Exercise 1:
+Density.plot <- ggplot(EPAair, aes(x = Ozone, fill= as.factor(Year))) +
+  geom_density(alpha = 0.5) +
+  scale_fill_manual (values = c("darkgreen", "darkblue"))+
+  labs(x = "Ozone AQI Value", y = "Density", fill ="")
+print(Density.plot)
+
+Boxplot <- ggplot(EPAair, aes(x=as.factor(Year), y = Ozone))+
+  geom_boxplot()+
+  stat_summary(geom ="text", fun = max , vjust = -1, size =4, label =c("b","a"))+
+  labs(x +"", y="Ozone AQI value")+
+  ylim(0,150)
+print (Boxplot)
+
+
 
 
 ```
@@ -60,11 +75,16 @@ For the NTL-LTER dataset, can we predict PM2.5 from Ozone?
 
 #Exercise 2: Run a linear regression PM2.5 by Ozone. Find the p-value and R-squared value. 
 
-
+regression <- lm(EPAair$PM2.5 ~ EPAair$Ozone)
+summary(regression)
+##13% of ozone of explained by pm2.5
 
 #Exercise 3: Build a scatterplot. Add a line and standard error for the linear regression. Add the regression equation to the plot
 
-
+ggplot(EPAair, aes( x= Ozone, y = PM2.5))+
+  geom_point()+
+  geom_smooth(method = "lm", color = "blue")
+  
 
 ```
 
@@ -76,16 +96,33 @@ What other variables can we add to improve model?
 ```{r}
 
 #Exercise 4: Build correlation plots and identify more possible explanatory variables to add to the regression.
+#install.packages("corrplot")
+library(tidyverse)
+library(corrplot)
+corr <- 
+  EPAair %>%
+  select(meanLat:Ozone) %>%
+  select(-Year) %>% 
+  drop_na()
+correlation <- cor(corr)
+corrplot(correlation, method = "ellipse")
+corrplot.mixed(correlation, upper = "ellipse")
 
 
+#Exercise 5: Choose a model by AIC in a Stepwise Algorithm. Do the results from AIC match the variables you selected on Exercise 4?
 
+TPAIC <- lm(data = EPAair, meanLat ~ Ozone)
 
-#Exercise 5: Choose a model by AIC in a Stepwise Algorithm. Do the results from AIC match the variables you selected on Exercise 5?
+#Choose a model by AIC in a Stepwise Algorithm
+step(TPAIC)
+TPmodel <- lm(data = EPAair, meanLat ~ Ozone)
+summary(TPmodel)
 
+#AIC is like a scale -- the lower ACI the better
 
-
-
-#Exercise 6: Run another regression using the variables selected on Exercise 6. Compare r-squared value with the one from Exercise 5. 
+#Exercise 6: Run another regression using the variables selected on Exercise 5. Compare r-squared value with the one from Exercise 5. 
+OzoneBestReg <-lm(data = corr, meanLat~ Ozone)
+summary(OzoneBestReg)
 
 ```
 
@@ -94,6 +131,8 @@ What other variables can we add to improve model?
 ## Litter Exercise
 
 ```{r}
+#install.packages("agricolae")
+#library(agricolae)
 # Wrangle the data
 Litter.Totals <- Litter %>%
   group_by(plotID, collectDate, nlcdClass) %>%
@@ -107,11 +146,11 @@ summary(Litter.Totals.anova)
 Litter.Totals.groups <- HSD.test(Litter.Totals.anova, "plotID", group = TRUE)
 Litter.Totals.groups$groups
 
-Litter.Totals <- Litter %>%
+Litter.Totals <- Litter  %>%
   mutate( treatgroups = Litter.Totals.groups$groups[plotID,2])
 
 # Graph the results
-Litter.Totals.plot <- ggplot(Litter.Totals, aes(x = plotID, y = dryMass)) +
+Litter.Totals.plot <- ggplot(Litter.Totals.2, aes(x = plotID, y = dryMass)) +
   geom_boxplot() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   stat_summary(geom = "text", fun = max, vjust = -1, size = 3.5,
@@ -121,6 +160,7 @@ Litter.Totals.plot <- ggplot(Litter.Totals, aes(x = plotID, y = dryMass)) +
   ylim(0, 85)
 print(Litter.Totals.plot)
 
+#210
 ```
 
 ```{r}

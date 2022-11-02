@@ -20,7 +20,11 @@ editor_options:
 #This code chunk will tidy your knit PDF files, wrapping long code lines
 #For it to work, the "formatR" package needs to be installed
 
-#install.packages('formatR')
+install.packages('formatR')
+install.packages("ggridges")
+install.packages("viridis")
+install.packages("RcolorBrewer")
+install.packages("colormap")
 knitr::opts_chunk$set(tidy.opts=list(width.cutoff=80), tidy=TRUE)
 ```
 
@@ -76,6 +80,14 @@ Exercise: build your own scatterplots of PeterPaul.chem.nutrients
 # Change the ylab name
 
 
+pp.ex1 <-
+  ggplot(subset(PeterPaul.chem.nutrients, depth==0),aes(x=daynum, y =temperature_C))+
+  geom_point(aes(color = year4 ))+
+  facet_wrap (vars(lakename), nrow = 2)+
+  ylab("Temperature")
+
+print(pp.ex1)
+
 #2. 
 # Plot temperature by date. Color your points by depth.
 # Change the size of your point to 0.5
@@ -83,6 +95,15 @@ Exercise: build your own scatterplots of PeterPaul.chem.nutrients
 # Change x axis to include marker/labels every 5 years
 
 
+pp.ex2 <- 
+  ggplot(PeterPaul.chem.nutrients,aes(x=sampledate, y =temperature_C))+
+  geom_point(aes(color= depth), size =0.5)+
+  ylab("Temperature")+
+  xlab(" ")+
+  scale_color_viridis(option="magma",direction =-1)+
+  scale_x_date(date_breaks = "5 years",date_labels = "%Y")
+print(pp.ex2)
+  
 
 
 ```
@@ -97,9 +118,12 @@ Exercise: Plot relationships between air quality measurements
 # Make the points 50 % transparent
 # Add a line of best fit for the linear regression of these variables.
 
+epa.ex3<-
+  ggplot(EPAair, aes(x= PM2.5, y =Ozone))+
+  geom_point(aes(color =meanLat), alpha=0.5) +
+  geom_smooth(method=lm, color = "red", se=FALSE)
 
-
-
+print(epa.ex3)
 ```
 
 ## Plotting continuous vs. categorical variables
@@ -112,6 +136,22 @@ Exercise: Plot distributions of AQI values for EPAair.
 # Create several types of plots depicting PM2.5, divided by year. 
 # Choose which plot displays the data best and justify your choice. 
 
+ggplot(EPAair,aes(x=as.factor(Year),y=PM2.5,))+
+  geom_violin()
+
+ ggplot(EPAair, aes(x=Month, y = PM2.5)) +
+  geom_point()+
+   facet_wrap(vars(Year), nrow=2)+
+   scale_x_continuous(limits=c(1,12),breaks =c(1:12))
+ 
+epa.ex4 <- 
+  ggplot(EPAair, aes(x=Month, y = PM2.5)) +
+  geom_point(aes(color = Year))+
+  scale_x_continuous(limits=c(1,12),breaks =c(1:12))
+
+
+print(epa.ex4)
+  
 
 
 ```

@@ -4,7 +4,7 @@ author: "Environmental Data Analytics | John Fay and Luana Lima"
 date: "Fall 2022"
 output: pdf_document
 ---
-
+#optional -- telling R we want all code chunks to echo(show up)
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -41,6 +41,7 @@ How would you store it on another object?
 ```{r}
 car_speed <- cars$speed
 car_speed
+
 ```
 
 
@@ -61,6 +62,7 @@ How could you make it a data frame?
 df_car_speed <- as.data.frame(car_speed)
 df_car_speed
 class(df_car_speed)
+
 ```
 
 ## Adding columns to a data frame
@@ -113,7 +115,8 @@ summary(df)
 head(df) #show the first 6 rows of df
 
 #If you know the number of the column you want you can refer to that to access column
-df_2 <- df[1:10,1:2]
+df_2 <- df[1:1]
+
 
 #you could also use this notation to delete columns
 df <- df[,-2]
