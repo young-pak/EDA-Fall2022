@@ -1,6 +1,6 @@
 ---
 title: "Assignment 5: Data Visualization"
-author: "Student Name"
+author: "Jiyoung Park "
 output: pdf_document
 geometry: margin=2.54cm
 ---
@@ -24,7 +24,7 @@ This exercise accompanies the lessons in Environmental Data Analytics on Data Vi
 4. Be sure to **answer the questions** in this assignment document.
 5. When you have completed the assignment, **Knit** the text and code into a single PDF file.
 
-The completed exercise is due on Friday, Oct 14th @ 5:00pm.
+The completed exercise is due on Friday, Oct 21th @ 5:00pm.
 
 
 
@@ -38,17 +38,30 @@ the processed data file for the Niwot Ridge litter dataset (use the
 
 2. Make sure R is reading dates as date format; if not change the format to date.
 
-```{r}
+```{r setup, warning=FALSE}
 #1 
-
+setwd("~/EDA-Fall2022")
+require("knitr")
+opts_knit$set(root.dir = "~/EDA-Fall2022")
+getwd()
+library(tidyverse)
+library(lubridate)
+#install.packages("cowplot")
+library(cowplot)
+NTL_LTER <- read.csv("./Data/Processed/NTL-LTER_Lake_Chemistry_Nutrients_PeterPaul_Processed.csv", stringsAsFactors = TRUE)
+NEON_NIWO <- read.csv("./Data/Processed/NEON_NIWO_Litter_mass_trap_Processed.csv", stringsAsFactors = TRUE)
 #2 
-
+NEON_NIWO$collectDate <- as.Date(NEON_NIWO$collectDate, format = "%Y-%m-%d")
+NTL_LTER$sampledate <- as.Date(NTL_LTER$sampledate, format = "%Y-%m-%d")
 ```
 ## Define your theme
 3. Build a theme and set it as your default theme.
 
 ```{r}
 #3
+mytheme <- theme_classic(base_size = 14) +
+  theme(axis.text = element_text(color = "black"), 
+        legend.position = "bottom") 
 
 ```
 
@@ -62,8 +75,22 @@ separate aesthetics for Peter and Paul lakes. Add a line of best fit and
 color it black. Adjust your axes to hide extreme values (hint: change the 
 limits using `xlim()` and/or `ylim()`).
 
-```{r}
+```{r , warning=FALSE}
 #4
+ggplot(NTL_LTER, aes(x=po4, y=tp_ug))+
+ geom_point(aes(color= lakename))+
+ geom_smooth(method =lm, color = "black", se=FALSE) +
+  mytheme+
+ xlim(0,50) +ylim(0,150)+
+  labs(title ="Phosphorus vs. Phosphate", x = "Phosphate", y = "Phosphorus")
+
+#zooming in more 
+ggplot(NTL_LTER, aes(x=po4, y=tp_ug))+
+ geom_point(aes(color= lakename))+
+ geom_smooth(method =lm, color = "black", se=FALSE) +
+  mytheme+
+ xlim(0,10) +ylim(0,50)+
+    labs(title ="Phosphorus vs. Phosphate", x = "Phosphate", y = "Phosphorus")
 
 ```
 
@@ -76,15 +103,40 @@ present and that graph axes are aligned.
 Tip: R has a build in variable called `month.abb` that returns a list of months;
 see <https://r-lang.com/month-abb-in-r-with-example>
 
-```{r}
+```{r setup, warning=FALSE}
 #5
+abbmonth <-month.abb[NTL_LTER$month]
+
+temp <- ggplot(NTL_LTER, aes(x= abbmonth, y= temperature_C)) +
+  geom_boxplot(aes(color= lakename))+
+   mytheme+
+  theme(legend.position = "none")+
+  labs(title ="Temperature by months", x= "months", y= "Temperature (C)")
+
+TP <- ggplot(NTL_LTER, aes(x= abbmonth, y= tp_ug))+
+  geom_boxplot(aes(color= lakename))+
+   mytheme+
+  theme(legend.position = "none")+
+  labs(title ="TP by months", x= "months", y= "TP")
+  
+TN <- ggplot(NTL_LTER, aes(x= abbmonth, y= tn_ug))+
+  geom_boxplot(aes(color= lakename))+
+   mytheme+
+  theme(legend.position = "none")+
+  labs(title ="TN by months", x= "months", y= "TN")   
+
+temp_legend <- ggplot(NTL_LTER, aes(x= abbmonth, y= temperature_C)) +
+  geom_boxplot(aes(color= lakename))
+legend <- get_legend(temp_legend)
+
+plot_grid(temp,TP,TN, legend, align = 'h')
 
 ```
 
 Question: What do you observe about the variables of interest over seasons 
 and between lakes? 
 
-> Answer: 
+> Answer: high TP and TN concentration with months that are high in temperatures. No measures found in months with cold temperatures(Feb, Nov, Oct)
 
 6. [Niwot Ridge] Plot a subset of the litter dataset by displaying only the 
 "Needles" functional group. Plot the dry mass of needle litter by date and 
@@ -94,13 +146,22 @@ of each land use)
 7. [Niwot Ridge] Now, plot the same plot but with NLCD classes separated into 
 three facets rather than separated by color. 
 
-```{r}
+```{r setup, warning=FALSE}
 #6
+NEON_NIWO_needles <- filter(NEON_NIWO,functionalGroup == "Needles")
+ggplot(NEON_NIWO_needles,aes(x= collectDate, y=dryMass)) +
+  geom_point(aes(color=nlcdClass)) +
+  labs(title ="Needles Litter by date", x = "Date", y ="Dry Mass")
+
 
 #7
+ggplot(NEON_NIWO_needles,aes(x= collectDate, y=dryMass)) +
+  geom_point() +
+  facet_wrap(vars(nlcdClass)) +
+  labs(title ="Needles Litter by date", x = "Date", y ="Dry Mass")
 
 
 ```
 Question: Which of these plots (6 vs. 7) do you think is more effective, and why? 
 
-> Answer:
+> Answer: i believe plot 7 is more effective at comparing than plot 6 because i can see the trends for drymass for three different ncld class more clearly in plot 7. 
