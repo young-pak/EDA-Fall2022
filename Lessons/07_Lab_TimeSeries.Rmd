@@ -82,13 +82,22 @@ BRA_complete <- inner_join(Rainfall_BR_processed,Temp_BR_processed)
 
 #Exercise 5: Check if there is any missing data for both temperature and rainfall series.
 
-
+summary(BRA_complete$Rainfall)
+summary(BRA_complete$Temperature_C)
 
 
 #Exercise 6: Plot both series over time on separate plots. Add a trend line using geom_smooth(). Can you say something about the trend just by visualizing the data?
 
+ggplot (Rainfall_BR_processed, aes( x= Date, y =Rainfall))+
+  geom_line()+
+  geom_smooth()
+#NO Trend in rainfall data, but YES for seasonal components
 
+ggplot(Temp_BR_processed, aes(x= Date, y = Temperature_C))+
+  geom_line()+
+  geom_smooth(method= "lm")
 
+#Yes there are both trend and seasonality 
 
 
 
@@ -98,8 +107,14 @@ BRA_complete <- inner_join(Rainfall_BR_processed,Temp_BR_processed)
 
 ```{r}
 #Exercise 7: Create a time series objects for each series using ts(). Make sure you specify the starting point and frequency.
+f_month <- month(first(BRA_complete$Date))
+f_year <- year(first(BRA_complete$Date))
+BRA_rainfall_ts <- ts(BRA_complete$Rainfall, start = c(f_year,f_month), frequency = 12)
+BRA_temp_ts <- ts(BRA_complete$Temperature_C, start = c(f_year,f_month), frequency = 12)
 
-
+#this also works 
+#start= c(1901,1) 
+# 1 means januaty 
 
 ```
 
@@ -121,23 +136,44 @@ The `stl` function decomposes the time series object into its component parts. W
 # Exercise 8: Use the stl() function to decompose both series. 
 # Visualize the decomposed series using plot(). What components can you identify?
 
+BRA_complete_Decomposed <- stl(BRA_complete_ts, s.window = "periodic")
+plot(BRA_complete_Decomposed)
 
 
+# Visualize how the trend maps onto the data
+ggplot(EnoDischarge.late_Components) +
+  geom_line(aes(y = Observed, x = Date),  size = 0.25) +
+  geom_line(aes(y = trend, x = Date), color = "#c13d75ff") +
+  geom_hline(yintercept = 0, lty = 2) +
+  ylab(expression("Discharge (ft"^3*"/s)"))
+
+# Visualize how the seasonal cycle maps onto the data
+ggplot(EnoDischarge.late_Components) +
+  geom_line(aes(y = Observed, x = Date),  size = 0.25) +
+  geom_line(aes(y = seasonal, x = Date), color = "#c13d75ff") +
+  geom_hline(yintercept = 0, lty = 2) +
+  ylab(expression("Discharge (ft"^3*"/s)"))
 
 
 
 # Exercise 9: Use the times series object generated with the stl() to extract the 
 # components of each series and turn them into data frames.
 
+BRA_complete_Components <- as.data.frame(BRA_complete_Decomposed$time.series[,1:3])
 
-
-
-
+BRA_complete_Components <- mutate(BRA_complete_Components, o
+                                  )
+EnoDischarge.late_Components <- mutate(EnoDischarge.late_Components,
+        Observed = EnoDischarge.late$discharge.mean,     
+        Date = EnoDischarge.late$datetime)
 
 # Exercise 10: Visualize how the trend maps onto the data for both series
 
-
-
+ggplot(BRA_complete_Components) +
+  geom_line(aes(y =Rainfall, x = Date), size = 0.25) +
+  geom_line(aes(y= Temperature_C, x= Date), color = "red")+
+  geom_hline(yintercept =0, lty=2)
+              
 
 
 

@@ -29,6 +29,10 @@ editor_options:
 ```{r setup}
 #Examine the working directory
 getwd()
+install.packages("sf")
+install.packages("leaflet")
+install.packages("mapview")
+install.packages("RColorBrewer")
 
 #Import libraries
 library(tidyverse)
@@ -82,6 +86,9 @@ mapView(counties_sf, zcol = "AWATER")
 #Read the shapefile into an sf dataframe named "huc8_sf"
 
 
+huc8_sf <- st_as_sf(epa_pm25_sites_sf)
+
+mapview(huc8_sf)
 
 #View the data as a map, colored by the acreage in each
 
@@ -95,10 +102,12 @@ mapView(counties_sf, zcol = "AWATER")
 ```{r Select the Upper Neuse HUC 8}
 #Read the shapefile into an sf dataframe
 
-
+upperNeuse_sf <- st_read('Data/Spatial/NCHUC8.shp') %>% 
+  filter(SUBBASIN == 'Upper Neuse')
 
 #Create a map
-
+mapview(huc8_sf, col.regions = 'orange')+
+  mapview(upperNeuse_sf, col.regions = 'purple', alpha.regions = 1)
 
 ```
 
@@ -115,17 +124,24 @@ The URL '<https://raw.githubusercontent.com/ENV859/EnviroAtlasData/main/Wind_Ene
 ```{r}
 #Compute HUC8 wind energy
 
-
+wind_raw <- read.csv('https://raw.githubusercontent.com/ENV859/EnviroAtlasData/main/Wind_Energy.csv', 
+colClasses = c('HUC_12'= 'factor')) %>% 
+  mutate(HUC_8 =substr(HUC_12,1,8)) %>%
+  group_by(HUC_8) %>% 
+  summarize(SumWindEnergy = sum(AvgWindEnergy))
 
 
 #Join to HUC_8 features
-
-
+huc8_sf_join = merge(x =huc8_sf, y=wind_raw, by.x ="HUC_8", by.y ="HUC_8")
 
 
 #View the outputs
-
-
+ggplot(data=huc8_sf_join)+
+  geom_sf(ase(fill=SumWindEnergy))+
+  labs(
+    title = 'wind energy by HUC8',
+    fill ='MW/hr'
+  )
 
 ```
 
@@ -135,10 +151,15 @@ Aggregate the HUC_8 data on the `DWQ_Basin` attribute, computing the sum of the 
 ```{r Aggregate the HUC data on an attribute, saving as huc2_sf}
 #List the unique values in the DWQ_Basin field
 
-
+unique(huc8_sf$DWQ_Basin)
 
 #Summarize on DWQ Basin value
-
+hucw2_sf <- hun8_sf %>% 
+  group_by(DWQ_Basin) %>% 
+  summarize(
+    acres = 
+    sq_miles =
+  )
 
 
 #Map the data

@@ -203,7 +203,6 @@ NAD83 / North America Albers Equal Area Conic <http://epsg.io/102008>
 
 Universal Transverse Mercator (UTM) You need to find your UTM zone and then determine EPSG from there. To look up your zone go to [this website](https://mangomap.com/robertyoung/maps/69585/what-utm-zone-am-i-in-#).
 
-### 3.2.2 A Quick Reference for CRSs in R
 
 National Center for Ecological Analysis and Synthesis created a CRS summary sheet. Useful quick reference as well as background if you don't have much knowledge of all the various choices presented.
 
